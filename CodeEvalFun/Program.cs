@@ -4,23 +4,53 @@ using System.Collections.Generic;
 
 class Program
 {
+    public static int howMany(string baseS, char test)
+    {
+        int tot =0;
+
+        while (baseS.IndexOf(test) > -1)
+        {
+            tot++;
+            baseS = baseS.Substring(baseS.IndexOf(test)+1);
+            //baseS.IndexOf(test);
+        }
+
+
+        return tot;
+    }
+
     static void Main(string[] args)
     {
-        string codex = "defghijklmnopqrstuvwxyzabc";
+        string codex = "";
         using (StreamReader reader = File.OpenText(args[0]))
             while (!reader.EndOfStream)
             {
                 //string[] temp;
                 int mewtwo = 0;
+                char test; 
                 string line = reader.ReadLine();
                 if (null == line)
                     continue;
                 string m = "";
+                codex = "";
+                List<int> codex2 = new List<int>();
                 for (int bagel = 0; bagel < line.Length; bagel++)
                 {
-                    if (Convert.ToChar(line.Substring(bagel, 1).ToLower()) >= (int)'a' && Convert.ToChar(line.Substring(bagel, 1).ToLower()) <= (int)'z'){
-                    mewtwo += Convert.ToInt32(codex.IndexOf(line.Substring(bagel, 1).ToLower().ToString())+1);
-                    m += line.Substring(bagel, 1).ToLower().ToString();}
+                    test = Convert.ToChar(line.Substring(bagel, 1).ToLower());
+                    if (test >= (int)'a' && test <= (int)'z')
+                    {
+                        if (codex.IndexOf(test) < 0)
+                        {
+                            codex += test;
+                        }
+                        mewtwo += Convert.ToInt32(codex.IndexOf(line.Substring(bagel, 1).ToLower().ToString()) + 1);
+                        m += line.Substring(bagel, 1).ToLower().ToString();
+                    }
+                }
+
+                foreach(char mm in codex)
+                {
+                    codex2.Add(howMany(m, mm));
                 }
                 // do something with line
                 Console.WriteLine(mewtwo);
