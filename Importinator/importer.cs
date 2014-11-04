@@ -9,14 +9,16 @@ using System.ServiceProcess;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
-
+using Content_Centre_API.Messaging;
 using System.Net;
 using System.Net.Http;
 using HtmlAgilityPack;
 using Newtonsoft.Json;
-using ProjectManagement_API.Models.DTO;
+//using ProjectManagement_API.Models.DTO;
+//using Content_Centre_API.Messaging;
 using Content_Centre_API_CORS.Messaging;
-using Content_Centre_API.Messaging;
+
+
 
 namespace Importinator
 {
@@ -64,67 +66,67 @@ namespace Importinator
             //        reader.
             //    }
 
-            clientDTO testClient = new clientDTO();
-            projectDTO proJ = new projectDTO();
-            responseObject resultObject = new responseObject();
-            ProjectManagementRequest reQ = new ProjectManagementRequest();
+            //clientDTO testClient = new clientDTO();
+            //projectDTO proJ = new projectDTO();
+            //responseObject resultObject = new responseObject();
+            //ProjectManagementRequest reQ = new ProjectManagementRequest();
 
-            testClient.name = "Paul Thorott";
-            testClient.email = "Cloud.Strife@ffxiv.pol";
-            testClient.phoneNumber = "1.123.123.1234";
+            //testClient.name = "Paul Thorott";
+            //testClient.email = "Cloud.Strife@ffxiv.pol";
+            //testClient.phoneNumber = "1.123.123.1234";
 
-            Console.WriteLine("some text....");
+            //Console.WriteLine("some text....");
 
-            proJ.client = testClient;
-            proJ.documents = new List<documentDTO>();
-            proJ.resources = new List<resourceDTO>();
-            proJ.invoices = new List<invoiceDTO>();
-            proJ.projectName = "What What?";
+            //proJ.client = testClient;
+            //proJ.documents = new List<documentDTO>();
+            //proJ.resources = new List<resourceDTO>();
+            //proJ.invoices = new List<invoiceDTO>();
+            //proJ.projectName = "What What?";
 
-            documentDTO tempDoc = new documentDTO();
-            resourceDTO tempRes = new resourceDTO();
-            invoiceDTO tempInv = new invoiceDTO();
-            languageDTO tempLan = new languageDTO();
+            //documentDTO tempDoc = new documentDTO();
+            //resourceDTO tempRes = new resourceDTO();
+            //invoiceDTO tempInv = new invoiceDTO();
+            //languageDTO tempLan = new languageDTO();
 
-            tempLan.translateDirectionID = new List<int>();
-            tempLan.translateDirectionID.Add(3);
-            tempLan.translateDirectionID.Add(2);            
+            //tempLan.translateDirectionID = new List<int>();
+            //tempLan.translateDirectionID.Add(3);
+            //tempLan.translateDirectionID.Add(2);            
 
-            tempDoc.name = "DOC1";
-            tempDoc.filePath = "x:\\sick.jpg";
-            tempDoc.status = 1;
-            tempDoc.sourceLanguageID = 1;
-            tempDoc.translateDirections = new languageDTO();
-            tempDoc.translateDirections = tempLan;
-
-
-            tempDoc.typeID = 1;
-
-            tempRes.firstName = "Don";
-            tempRes.lastName = "Matroska";
-            tempRes.company = "OSC";
-            tempRes.address = "100 disney drive";
-            tempRes.type = "0";
-            tempRes.isCompany = false;
-            tempRes.languageAssociations = new languageDTO();
-            tempRes.languageAssociations = tempLan;
-            tempRes.languageAssociations.translateDirectionID[0] = 1;
-            tempRes.languageAssociations.translateDirectionID[1] = 3;
-            tempRes.documents = new List<documentDTO>();
-
-            tempInv.price = 0.50;
-            tempInv.status = "1";
-            tempInv.version = 1.00;
-            tempInv.documentID = 344;
-
-            proJ.invoices.Add(tempInv);
-            proJ.documents.Add(tempDoc);
-            proJ.resources.Add(tempRes);
+            //tempDoc.name = "DOC1";
+            //tempDoc.filePath = "x:\\sick.jpg";
+            //tempDoc.status = 1;
+            //tempDoc.sourceLanguageID = 1;
+            //tempDoc.translateDirections = new languageDTO();
+            //tempDoc.translateDirections = tempLan;
 
 
-            reQ.projects = new List<projectDTO>();
+            //tempDoc.typeID = 1;
 
-            reQ.projects.Add(proJ);
+            //tempRes.firstName = "Don";
+            //tempRes.lastName = "Matroska";
+            //tempRes.company = "OSC";
+            //tempRes.address = "100 disney drive";
+            //tempRes.type = "0";
+            //tempRes.isCompany = false;
+            //tempRes.languageAssociations = new languageDTO();
+            //tempRes.languageAssociations = tempLan;
+            //tempRes.languageAssociations.translateDirectionID[0] = 1;
+            //tempRes.languageAssociations.translateDirectionID[1] = 3;
+            //tempRes.documents = new List<documentDTO>();
+
+            //tempInv.price = 0.50;
+            //tempInv.status = "1";
+            //tempInv.version = 1.00;
+            //tempInv.documentID = 344;
+
+            //proJ.invoices.Add(tempInv);
+            //proJ.documents.Add(tempDoc);
+            //proJ.resources.Add(tempRes);
+
+
+            //reQ.projects = new List<projectDTO>();
+
+            //reQ.projects.Add(proJ);
 
             Console.WriteLine("some more text....");
 
@@ -493,11 +495,15 @@ namespace Importinator
                 Console.ReadLine();
 
 
+
                 if (newSpec.SpecID > 0)
                 {
                     // ----------- Process the Spec Items .......
+                    SpecificationItemTransferObjects SpecItemDTO = new SpecificationItemTransferObjects();
+                    SpecItemDTO.data = courses;
 
-                    httpResponse = client.PostAsJsonAsync<List<SpecificationItemTransferObject>>(ajaxURI + "/ProcessSpecificationItems", courses).Result;
+
+                    httpResponse = client.PostAsJsonAsync<SpecificationItemTransferObjects>(ajaxURI + "/ProcessSpecificationItems", SpecItemDTO).Result;
                     Console.WriteLine("\n|--------------------|");
                     Console.WriteLine("... Attaching SpecItems for new Spec");
                     Console.WriteLine("Data Sent.. did it work? ....");

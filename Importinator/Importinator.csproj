@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Importinator</RootNamespace>
     <AssemblyName>Importinator</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
@@ -26,6 +26,7 @@
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -47,6 +48,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Content-Centre-API-CORS">
+      <HintPath>..\..\ContentCentreProject\Content-Centre-API-CORS\bin\Content-Centre-API-CORS.dll</HintPath>
+    </Reference>
     <Reference Include="HtmlAgilityPack">
       <HintPath>..\packages\HtmlAgilityPack.1.4.9\lib\Net45\HtmlAgilityPack.dll</HintPath>
     </Reference>
@@ -70,36 +74,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Class1.cs" />
-    <Compile Include="DTOs\clientDTO.cs" />
-    <Compile Include="DTOs\documentDTO.cs" />
-    <Compile Include="ErrorHandling\Error.cs" />
     <Compile Include="importer.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="importer.Designer.cs">
       <DependentUpon>importer.cs</DependentUpon>
     </Compile>
-    <Compile Include="DTOs\invoiceDTO.cs" />
-    <Compile Include="DTOs\languageDTO.cs" />
-    <Compile Include="Messaging\LanguageResponseObject.cs" />
-    <Compile Include="DTOs\LanguageTransferObject.cs" />
-    <Compile Include="Messaging\MealTypeResponseObject.cs" />
-    <Compile Include="DTOs\MealTypeTransferObject.cs" />
-    <Compile Include="Messaging\SpecResponseObject.cs" />
     <Compile Include="Program.cs" />
-    <Compile Include="DTOs\projectDTO.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="DTOs\resourceDTO.cs" />
-    <Compile Include="DTOs\SpecTransferObject.cs" />
-    <Compile Include="Messaging\StatusResponseObject.cs" />
-    <Compile Include="DTOs\StatusTransferObject.cs" />
-    <Compile Include="Messaging\RotationGrillResponseObject.cs" />
-    <Compile Include="DTOs\RotationGrillTransferObject.cs" />
-    <Compile Include="Messaging\SpecificationItemResponseObject.cs" />
-    <Compile Include="DTOs\SpecificationItemTransferObject.cs" />
-    <Compile Include="Messaging\SpecificationItemXTagResponseObject.cs" />
-    <Compile Include="DTOs\SpecificationItemXTagTransferObject.cs" />
-    <Compile Include="ErrorHandling\SpecificationException.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">
@@ -123,6 +105,11 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="DTOs\" />
+    <Folder Include="ErrorHandling\" />
+    <Folder Include="Messaging\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

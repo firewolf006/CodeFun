@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Data;
-using ProjectManagement_API.Models.DTO;
+//using ProjectManagement_API.Models.DTO;
 
 namespace Importinator
 {
@@ -80,13 +80,13 @@ namespace Importinator
 
 
 
-    // for storm testing
-    public class ProjectManagementRequest
-    {
-        public List<projectDTO> projects;
-        public string errors;
-        public string status;
-    }
+    //// for storm testing
+    //public class ProjectManagementRequest
+    //{
+    //    public List<projectDTO> projects;
+    //    public string errors;
+    //    public string status;
+    //}
 
 
     // allergen fun
