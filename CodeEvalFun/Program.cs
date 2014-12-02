@@ -12,7 +12,6 @@ class Program
         {
             tot++;
             baseS = baseS.Substring(baseS.IndexOf(test)+1);
-            //baseS.IndexOf(test);
         }
 
 
@@ -25,7 +24,6 @@ class Program
         using (StreamReader reader = File.OpenText(args[0]))
             while (!reader.EndOfStream)
             {
-                //string[] temp;
                 int mewtwo = 0;
                 char test; 
                 string line = reader.ReadLine();

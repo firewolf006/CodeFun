@@ -25,6 +25,13 @@ namespace Importinator
         public List<CLASSCODE> classCodeList;
         public String mealType;
         public List<MENU> menusList;
+        public int OSCKey = -1;
+
+        public string specMatchKey;
+        public string newCode;
+        public string newClass;
+        public string newStation;
+        public int tempSpecID = -1;
 
     }
 
@@ -54,7 +61,7 @@ namespace Importinator
         public String label;
         public String content;
         public String sequence;
-        public List<ALLERGEN> allergens;
+        public List<ALLERGEN> allergens = new List<ALLERGEN>();
     }
 
     public class MENU
@@ -64,7 +71,7 @@ namespace Importinator
 
     public class ALLERGEN
     {
-        public String allergen;
+        public String allergen =string.Empty;
     }
 
     public class theList
@@ -77,50 +84,41 @@ namespace Importinator
         public DataTable results;
         public string jsonResults;
     }
-
-
-
-    //// for storm testing
-    //public class ProjectManagementRequest
-    //{
-    //    public List<projectDTO> projects;
-    //    public string errors;
-    //    public string status;
-    //}
-
-
-    // allergen fun
-    public class AllergenTransferObject
-    {
-        string accountID = string.Empty;
-        Guid userID = Guid.Empty;
-
-        string value = string.Empty;
-        int allergenID = -1;
-
-
-        public string AccountID
-        {
-            get { return accountID; }
-            set { accountID = value; }
-        }
-
-        public Guid UserID
-        {
-            get { return userID; }
-            set { userID = value; }
-        }
-
-        public string Value
-        {
-            get { return value; }
-            set { this.value = value; }
-        }
-
-        public int AllergenID
-        {
-            get { return allergenID; }
-            set { allergenID = value; }
-        }
-    }
 }
+
+
+//    // allergen fun
+//    public class AllergenTransferObject
+//    {
+//        string accountID = string.Empty;
+//        Guid userID = Guid.Empty;
+
+//        string value = string.Empty;
+//        int allergenID = -1;
+
+
+//        public string AccountID
+//        {
+//            get { return accountID; }
+//            set { accountID = value; }
+//        }
+
+//        public Guid UserID
+//        {
+//            get { return userID; }
+//            set { userID = value; }
+//        }
+
+//        public string Value
+//        {
+//            get { return value; }
+//            set { this.value = value; }
+//        }
+
+//        public int AllergenID
+//        {
+//            get { return allergenID; }
+//            set { allergenID = value; }
+//        }
+//    }
+//}

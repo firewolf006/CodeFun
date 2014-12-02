@@ -38,7 +38,89 @@ namespace Importinator
             //    });
 
             // TODO: Add code here to start your service.
+            
+            
+            // get the specs to be imported
             String lineS = "";
+            StreamReader reader = File.OpenText(args[0]);
+            lineS = reader.ReadToEnd();
+
+            theList test = new theList();
+            test = JsonConvert.DeserializeObject<theList>(lineS);
+
+
+
+            foreach (DataList m in test.menuDataList)
+            {
+                // build code string
+                for (int x = 0; x < m.mealList.Count; x++)
+                {
+                    m.newCode += m.mealList[x].code;
+                    if (x + 1 != m.mealList.Count)
+                        m.newCode += "/";
+                }
+
+                // build class string
+                for (int x = 0; x < m.classCodeList.Count; x++)
+                {
+                    m.newClass += m.classCodeList[x].code;
+                    if (x + 1 != m.classCodeList.Count)
+                        m.newClass += "/";
+                }
+
+                // build station string
+                for (int x = 0; x < m.departureArrivalList.Count; x++)
+                {
+                    m.newStation += m.departureArrivalList[x].departure.code;
+                    if (m.departureArrivalList[x].arrival != null)
+                        m.newStation += "(" + m.departureArrivalList[x].arrival.code + ")";
+                    if (x + 1 != m.departureArrivalList.Count)
+                        m.newStation += "/";
+                }
+                
+                m.specMatchKey = m.newCode +
+                    m.validityBegin + m.pairingGrid + m.cycle + m.newStation +
+                    m.newClass;
+
+                if (m.OSCKey > -1)
+                    m.tempSpecID = m.OSCKey;
+            }
+
+            //assign temporary specIDs
+            int tempSpecCounter = -2;
+
+            for (int y = 0; y < test.menuDataList.Count(); y++)
+            {
+                if (test.menuDataList[y].tempSpecID == -1)
+                {
+                    test.menuDataList[y].tempSpecID = tempSpecCounter;
+
+                    bool found = false;
+                    for (int x3 = y + 1; x3 < test.menuDataList.Count(); x3++)
+                    {
+                        //test.menuDataList[x3].tempSpecID = --tempSpecCounter;
+
+                        if (test.menuDataList[x3].tempSpecID == -1)
+                        {
+                            if (test.menuDataList[y].specMatchKey == test.menuDataList[x3].specMatchKey)
+                            {
+                                test.menuDataList[x3].tempSpecID = test.menuDataList[y].tempSpecID;
+                                found = true;
+                            }
+                        }
+                    }
+                    if (found)
+                        tempSpecCounter--;
+                }
+            }
+
+            foreach (DataList m in test.menuDataList)
+            {
+                Console.WriteLine(m.specMatchKey + " : " + m.tempSpecID);
+            }
+
+
+            // get Token
             ServicePointManager.ServerCertificateValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;
 
             Console.WriteLine("Getting token");
@@ -49,10 +131,6 @@ namespace Importinator
             client.DefaultRequestHeaders.Add("Authorization", OscToken);
 
             Console.WriteLine("token Retrieved");
-
-            StreamReader reader = File.OpenText(args[0]);
-            lineS = reader.ReadToEnd();
-
 
             //using (StreamReader reader = File.OpenText(args[0]))
             //    while (!reader.EndOfStream)
@@ -139,10 +217,6 @@ namespace Importinator
 
 
             String ajaxURI = ConfigurationManager.AppSettings["SpecWebApi"];
-
-            theList test = new theList();
-            test = JsonConvert.DeserializeObject<theList>(lineS);
-
 
             // -----------Get meal types
             MealTypeTransferObject reQ1 = new MealTypeTransferObject();
@@ -239,33 +313,54 @@ namespace Importinator
             }
 
             // -----------Get allergens....
-            Console.WriteLine("\n|--------------------|");
-            Console.WriteLine("... getting Allergen IDs");
-            Console.WriteLine("NOPE...... just kidding");
+            AllergenTransferObject reQ5 = new AllergenTransferObject();
+            reQ5.AccountID = 1;
+            //reQ5.LanguageID = 1;
 
             List<AllergenTransferObject> Allergens = new List<AllergenTransferObject>();
 
-            AllergenTransferObject tempAlly = new AllergenTransferObject();
+            httpResponse = client.PostAsJsonAsync<AllergenTransferObject>(ajaxURI + "/getAllAllergens", reQ5).Result;
+            Console.WriteLine("\n|--------------------|");
+            Console.WriteLine("... getting Allergen IDs");
+            Console.WriteLine("Data Sent.. did it work? ....");
+            //Console.WriteLine("NOPE...... just kidding");
 
-            tempAlly.AllergenID = 0;
-            tempAlly.Value = "Fish";
-            Allergens.Add(tempAlly);
+            if (httpResponse.StatusCode == (HttpStatusCode)200)
+            {
+                Console.WriteLine("yes....yes it did");
+                AllergenResponseObject PressXtoJSON = new AllergenResponseObject();
+                PressXtoJSON = await httpResponse.Content.ReadAsAsync<AllergenResponseObject>();
+                Allergens = JsonConvert.DeserializeObject<List<AllergenTransferObject>>(PressXtoJSON.JsonResults);
+                Console.WriteLine("Allergens populated");
+            }
+            else
+            {
+                Console.WriteLine("nope, wrong again!");
+                Console.WriteLine("--> " + httpResponse.StatusCode + " : " + httpResponse.ReasonPhrase);
+            }
             
-            tempAlly.AllergenID = 1;
-            tempAlly.Value = "Egg";
-            Allergens.Add(tempAlly);
+            //List<AllergenTransferObject> Allergens = new List<AllergenTransferObject>();
+            //AllergenTransferObject tempAlly = new AllergenTransferObject();
 
-            tempAlly.AllergenID = 2;
-            tempAlly.Value = "Gluten";
-            Allergens.Add(tempAlly);
+            //tempAlly.AllergenID = 0;
+            //tempAlly.Value = "Fish";
+            //Allergens.Add(tempAlly);
+            
+            //tempAlly.AllergenID = 1;
+            //tempAlly.Value = "Egg";
+            //Allergens.Add(tempAlly);
 
-            tempAlly.AllergenID = 3;
-            tempAlly.Value = "Bees";
-            Allergens.Add(tempAlly);
+            //tempAlly.AllergenID = 2;
+            //tempAlly.Value = "Gluten";
+            //Allergens.Add(tempAlly);
 
-            tempAlly.AllergenID = 4;
-            tempAlly.Value = "Milk";
-            Allergens.Add(tempAlly);
+            //tempAlly.AllergenID = 3;
+            //tempAlly.Value = "Bees";
+            //Allergens.Add(tempAlly);
+
+            //tempAlly.AllergenID = 4;
+            //tempAlly.Value = "Milk";
+            //Allergens.Add(tempAlly);
 
             // ------------------------////////////////////////
 
@@ -289,7 +384,7 @@ namespace Importinator
             //PressMtoJSON = JsonConvert.DeserializeObject<theList>(lineS);
             PressMtoJSON = JsonConvert.SerializeObject(pole);
 
-            // display some of the specs for verification
+            // display the specs for verification
             String str = "";
             int start = 0, howMany = 9; //9
             for (int xList = start; xList < howMany + start; xList++)
@@ -316,36 +411,12 @@ namespace Importinator
                 // Check if spec exists
 
 
-
-
-
                 //String codeString = "", stationString = "";
 
-                // build code string
-                for (int x = 0; x < temp.mealList.Count; x++)
-                {
-                    newSpec.Code += temp.mealList[x].code;
-                    if (x + 1 != temp.mealList.Count)
-                        newSpec.Code += "/";
-                }
+                newSpec.Class = temp.newClass;
+                newSpec.Code = temp.newCode;
+                newSpec.Station = temp.newStation;
 
-                // build class string
-                for (int x = 0; x < temp.classCodeList.Count; x++)
-                {
-                    newSpec.Class += temp.classCodeList[x].code;
-                    if (x + 1 != temp.classCodeList.Count)
-                        newSpec.Class += "/";
-                }
-
-                // build station string
-                for (int x = 0; x < temp.departureArrivalList.Count; x++)
-                {
-                    newSpec.Station += temp.departureArrivalList[x].departure.code;
-                    if (temp.departureArrivalList[x].arrival != null)
-                        newSpec.Station += "(" + temp.departureArrivalList[x].arrival.code + ")";
-                    if (x + 1 != temp.departureArrivalList.Count)
-                        newSpec.Station += "/";
-                }
 
                 // get MealType
                 newSpec.MealTypeID = getMealTypeID(MealTypes, temp.mealType);
@@ -362,45 +433,169 @@ namespace Importinator
                 //List<LanguageTransferObject> Languages = new List<LanguageTransferObject>();
 
 
-                httpResponse = client.PostAsJsonAsync<SpecTransferObject>(ajaxURI + "/insertSpec", newSpec).Result;
-                Console.WriteLine("\n|--------------------|");
-                Console.WriteLine("... Getting Spec ID for new Spec");
-                Console.WriteLine("Data Sent.. did it work? ....");
 
-                if (httpResponse.StatusCode == (HttpStatusCode)200)
+                
+
+
+
+                if (temp.tempSpecID > -1) // check if it exists
                 {
-                    Console.WriteLine("yes....yes it did");
-                    SpecResponseObject PressXtoJSON = new SpecResponseObject();
-                    try
+                    SpecTransferObject checkSpec = new SpecTransferObject();
+                    checkSpec.SpecID = temp.tempSpecID;
+
+
+                    httpResponse = client.PostAsJsonAsync<SpecTransferObject>(ajaxURI + "/getSpecByID", checkSpec).Result;
+                    Console.WriteLine("\n|--------------------|");
+                    Console.WriteLine("... Checking if Spec Exists");
+                    Console.WriteLine("Data Sent.. did it work? ....");
+
+                    if (httpResponse.StatusCode == (HttpStatusCode)200)
                     {
-                        PressXtoJSON = await httpResponse.Content.ReadAsAsync<SpecResponseObject>();
-                        if (PressXtoJSON.Error)
+                        Console.WriteLine("yes....yes it did");
+                        SpecResponseObject PressXtoJSON = new SpecResponseObject();
+                        try
                         {
-                            Console.WriteLine("the faiL, has arrived :(");
-                            foreach (Content_Centre_API_CORS.ErrorHandling.SpecificationError m in PressXtoJSON.ErrorList)
+                            PressXtoJSON = await httpResponse.Content.ReadAsAsync<SpecResponseObject>();
+                            if (PressXtoJSON.Error)
                             {
-                                Console.WriteLine("-> " + m.ErrorMessage);
+                                Console.WriteLine("the faiL, has arrived :(");
+                                foreach (Content_Centre_API_CORS.ErrorHandling.SpecificationError m in PressXtoJSON.ErrorList)
+                                {
+                                    Console.WriteLine("-> " + m.ErrorMessage);
+                                }
+                            }
+                            else
+                            {
+                                Console.WriteLine("SpecCheck was a GREAT SUCCESS");
+                                DataTable tempResponse = new DataTable();
+                                tempResponse = JsonConvert.DeserializeObject<DataTable>(PressXtoJSON.JsonResults);
+                                try{
+                                    newSpec.SpecID = Convert.ToInt32(tempResponse.Rows[0].ItemArray[0]);
+                                }
+                                
+                                    catch(SystemException e){
+                                        Console.WriteLine(e.Message.ToString());
+                                    }
+                                if (newSpec.SpecID < 0)
+                                {
+                                    Console.WriteLine("no, no, no.... it's not there... can't update");
+                                    newSpec.SpecID = 0;
+                                }
+                                // check if there are matching spec and assign the new spec ID
                             }
                         }
-                        else
+                        catch (Newtonsoft.Json.JsonSerializationException e)
                         {
-                            Console.WriteLine("Spec was a GREAT SUCCESS");
-                            newSpec.SpecID = PressXtoJSON.SpecID;
+                            Console.WriteLine("the faiL, has arrived :(");
+                            Console.WriteLine(e.Message);
                         }
-                    }
-                    catch (Newtonsoft.Json.JsonSerializationException e)
-                    {
-                        Console.WriteLine("the faiL, has arrived :(");
-                        Console.WriteLine(e.Message);
-                    }
-                    //SpecRes = JsonConvert.DeserializeObject<List<SpecTransferObject>>(PressXtoJSON.JsonResults);
+                        //SpecRes = JsonConvert.DeserializeObject<List<SpecTransferObject>>(PressXtoJSON.JsonResults);
 
+                    }
+                    else
+                    {
+                        Console.WriteLine("nope, wrong again!");
+                        Console.WriteLine("--> " + httpResponse.StatusCode + " : " + httpResponse.ReasonPhrase);
+                    }
+                }
+
+                if (newSpec.SpecID < 0) // INSERT
+                {
+
+                    httpResponse = client.PostAsJsonAsync<SpecTransferObject>(ajaxURI + "/insertSpec", newSpec).Result;
+                    Console.WriteLine("\n|--------------------|");
+                    Console.WriteLine("... Getting Spec ID for new Spec");
+                    Console.WriteLine("Data Sent.. did it work? ....");
+
+                    if (httpResponse.StatusCode == (HttpStatusCode)200)
+                    {
+                        Console.WriteLine("yes....yes it did");
+                        SpecResponseObject PressXtoJSON = new SpecResponseObject();
+                        try
+                        {
+                            PressXtoJSON = await httpResponse.Content.ReadAsAsync<SpecResponseObject>();
+                            if (PressXtoJSON.Error)
+                            {
+                                Console.WriteLine("the faiL, has arrived :(");
+                                foreach (Content_Centre_API_CORS.ErrorHandling.SpecificationError m in PressXtoJSON.ErrorList)
+                                {
+                                    Console.WriteLine("-> " + m.ErrorMessage);
+                                }
+                            }
+                            else
+                            {
+                                Console.WriteLine("Spec was a GREAT SUCCESS");
+                                newSpec.SpecID = PressXtoJSON.SpecID;
+                                // check if there are matching spec and assign the new spec ID
+
+                                for (int xUpdate = xList + 1; xUpdate < howMany + start; xUpdate++)
+                                {
+                                    if (test.menuDataList[xUpdate].tempSpecID == test.menuDataList[xUpdate - 1].tempSpecID)
+                                        test.menuDataList[xUpdate].tempSpecID = newSpec.SpecID;
+                                }
+                            }
+                        }
+                        catch (Newtonsoft.Json.JsonSerializationException e)
+                        {
+                            Console.WriteLine("the faiL, has arrived :(");
+                            Console.WriteLine(e.Message);
+                        }
+                        //SpecRes = JsonConvert.DeserializeObject<List<SpecTransferObject>>(PressXtoJSON.JsonResults);
+
+                    }
+                    else
+                    {
+                        Console.WriteLine("nope, wrong again!");
+                        Console.WriteLine("--> " + httpResponse.StatusCode + " : " + httpResponse.ReasonPhrase);
+                    }
+                }
+                else if (newSpec.SpecID != 0)
+                { // UPDATE!!!!
+                    httpResponse = client.PostAsJsonAsync<SpecTransferObject>(ajaxURI + "/updateSpec", newSpec).Result;
+                    Console.WriteLine("\n|--------------------|");
+                    Console.WriteLine("... Getting Spec ID for new Spec");
+                    Console.WriteLine("Data Sent.. did it work? ....");
+
+                    if (httpResponse.StatusCode == (HttpStatusCode)200)
+                    {
+                        Console.WriteLine("yes....yes it did");
+                        SpecResponseObject PressXtoJSON = new SpecResponseObject();
+                        try
+                        {
+                            PressXtoJSON = await httpResponse.Content.ReadAsAsync<SpecResponseObject>();
+                            if (PressXtoJSON.Error)
+                            {
+                                Console.WriteLine("the faiL, has arrived :(");
+                                foreach (Content_Centre_API_CORS.ErrorHandling.SpecificationError m in PressXtoJSON.ErrorList)
+                                {
+                                    Console.WriteLine("-> " + m.ErrorMessage);
+                                }
+                            }
+                            else
+                            {
+                                Console.WriteLine("Spec was a GREAT SUCCESS");
+                            }
+                        }
+                        catch (Newtonsoft.Json.JsonSerializationException e)
+                        {
+                            Console.WriteLine("the faiL, has arrived :(");
+                            Console.WriteLine(e.Message);
+                        }
+                        //SpecRes = JsonConvert.DeserializeObject<List<SpecTransferObject>>(PressXtoJSON.JsonResults);
+
+                    }
+                    else
+                    {
+                        Console.WriteLine("nope, wrong again!");
+                        Console.WriteLine("--> " + httpResponse.StatusCode + " : " + httpResponse.ReasonPhrase);
+                    }
                 }
                 else
                 {
-                    Console.WriteLine("nope, wrong again!");
-                    Console.WriteLine("--> " + httpResponse.StatusCode + " : " + httpResponse.ReasonPhrase);
+                    Console.WriteLine("Spec ID is invalid, i don't know what to do");
                 }
+
+
 
                 List<SpecificationItemTransferObject> courses = new List<SpecificationItemTransferObject>();
 
@@ -410,17 +605,27 @@ namespace Importinator
                 {
                     COURSE m = temp.menusList[0].coursesList[x];
                     SpecificationItemTransferObject tempCourse = new SpecificationItemTransferObject();
+                    tempCourse.AccountID = "1"; // Air France
                     int xID = x + 1;
-
-                    // get Allergen IDs
-                    //foreach (ALLERGEN m2 in m.allergens)
-                    //{
-
-                    //}
 
                     tempCourse.SpecificationItemID = -(courses.Count + 1);
                     tempCourse.LanguageID = getLanguageID(Languages, temp.language);
                     tempCourse.SpecificationID = newSpec.SpecID;
+
+                    // get Allergen IDs and apply to specItem
+
+                    //AllergenTransferObject tempAlly = new AllergenTransferObject();
+                    foreach (ALLERGEN m2 in m.allergens)
+                    {
+                        AllergenTransferObject tempAlly = new AllergenTransferObject();
+
+                        tempAlly.AccountID = Convert.ToInt32(tempCourse.AccountID);
+                        tempAlly.LanguageID = tempCourse.LanguageID;
+                        tempAlly.AllergenID = getAllergenID(Allergens, m2.allergen, tempAlly.LanguageID);
+                        tempCourse.Allergens.Add(tempAlly);
+                    }
+
+
 
                     if (m.label != null)
                     {
@@ -547,6 +752,7 @@ namespace Importinator
                 {
                     Console.WriteLine("can't add specs without ID");
                 }
+                Console.Clear();
             }
             Console.WriteLine("one more ENTER");
             Console.ReadLine();
@@ -554,17 +760,18 @@ namespace Importinator
 
         }
 
-        public int getAllergenID(List<AllergenTransferObject> Languages, String finder)
+        public int getAllergenID(List<AllergenTransferObject> Allergens, String finder, int LanguageID)
         {
             AllergenTransferObject findThis = new AllergenTransferObject();
             finder = finder.ToLower();
-            findThis.Value = finder;
+            findThis.Allergen = finder;
+            findThis.LanguageID = LanguageID;
 
-            for (int m = 0; m < Languages.Count; m++)
+            for (int m = 0; m < Allergens.Count; m++)
             {
-                if (Languages[m].Value.ToLower() == findThis.Value)
+                if (Allergens[m].Allergen.ToLower() == findThis.Allergen && Allergens[m].LanguageID == findThis.LanguageID)
                 {
-                    findThis.AllergenID = Languages[m].AllergenID;
+                    findThis.AllergenID = Allergens[m].AllergenID;
                 }
             }
             return findThis.AllergenID;
