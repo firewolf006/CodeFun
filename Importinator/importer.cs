@@ -384,6 +384,8 @@ namespace Importinator
             //PressMtoJSON = JsonConvert.DeserializeObject<theList>(lineS);
             PressMtoJSON = JsonConvert.SerializeObject(pole);
 
+
+
             // display the specs for verification
             String str = "";
             int start = 0, howMany = 9; //9
@@ -499,7 +501,7 @@ namespace Importinator
                     }
                 }
 
-                if (newSpec.SpecID < 0) // INSERT
+                if (temp.tempSpecID < 0) // INSERT
                 {
 
                     httpResponse = client.PostAsJsonAsync<SpecTransferObject>(ajaxURI + "/insertSpec", newSpec).Result;
@@ -526,11 +528,15 @@ namespace Importinator
                             {
                                 Console.WriteLine("Spec was a GREAT SUCCESS");
                                 newSpec.SpecID = PressXtoJSON.SpecID;
+                                int toChange = test.menuDataList[xList].tempSpecID;
+                                test.menuDataList[xList].tempSpecID = PressXtoJSON.SpecID;
                                 // check if there are matching spec and assign the new spec ID
+
+                                
 
                                 for (int xUpdate = xList + 1; xUpdate < howMany + start; xUpdate++)
                                 {
-                                    if (test.menuDataList[xUpdate].tempSpecID == test.menuDataList[xUpdate - 1].tempSpecID)
+                                    if (test.menuDataList[xUpdate].tempSpecID == toChange)
                                         test.menuDataList[xUpdate].tempSpecID = newSpec.SpecID;
                                 }
                             }
@@ -549,7 +555,7 @@ namespace Importinator
                         Console.WriteLine("--> " + httpResponse.StatusCode + " : " + httpResponse.ReasonPhrase);
                     }
                 }
-                else if (newSpec.SpecID != 0)
+                else if (temp.tempSpecID != 0)
                 { // UPDATE!!!!
                     httpResponse = client.PostAsJsonAsync<SpecTransferObject>(ajaxURI + "/updateSpec", newSpec).Result;
                     Console.WriteLine("\n|--------------------|");
@@ -613,8 +619,6 @@ namespace Importinator
                     tempCourse.SpecificationID = newSpec.SpecID;
 
                     // get Allergen IDs and apply to specItem
-
-                    //AllergenTransferObject tempAlly = new AllergenTransferObject();
                     foreach (ALLERGEN m2 in m.allergens)
                     {
                         AllergenTransferObject tempAlly = new AllergenTransferObject();
@@ -666,6 +670,10 @@ namespace Importinator
                             courseRei.ParentID = courses[courses.Count - 1].SpecificationItemID;
                             courseRei.Value = m.content;
                             courseRei.OrderNumber = subItemCounter++;
+
+                            // move allergens from the header
+                            courseRei.Allergens = tempCourse.Allergens;
+                            tempCourse.Allergens = new List<AllergenTransferObject>();
                             courses.Add(courseRei);
                         }
                     }
@@ -677,7 +685,7 @@ namespace Importinator
                 str += newSpec.Code + " : "
                     + newSpec.Class + " : "
                     + newSpec.RotationID + " : "
-                    + newSpec.MealTypeID + " : "
+                    + newSpec.MealTypeID + " : " 
                     + newSpec.StatusID + " : "
                     + newSpec.Station;
 
@@ -705,7 +713,42 @@ namespace Importinator
                 {
                     // ----------- Process the Spec Items .......
                     SpecificationItemTransferObjects SpecItemDTO = new SpecificationItemTransferObjects();
+                    SpecificationItemTransferObject tempSpecGet = new SpecificationItemTransferObject();
+                    //SpecItemDTO.data = courses;
+
+                    //SpecItemDTO
+
+                    tempSpecGet.SpecificationID = newSpec.SpecID;
+                    //SpecItemDTO.data[0].SpecificationID = newSpec.SpecID;
+
+                    //DataTable tempResponse = new DataTable();
+                    //SpecificationItemResponseObject SpecTemp = new SpecificationItemResponseObject();
+                    //SpecTemp = await httpResponse.Content.ReadAsAsync<SpecificationItemResponseObject>();
+
+                    //SpecItemDTO = JsonConvert.DeserializeObject<SpecificationItemTransferObjects>(SpecTemp.JsonResults);
+                    // nuke old all specItems
+                    // will take longer but checking, updating and deleting would be better, but slower for
+
+                    //get old Specs
+                    httpResponse = client.PostAsJsonAsync<SpecificationItemTransferObject>(ajaxURI + "/getSpecificationItemsBySpecID", tempSpecGet).Result;
+                    SpecificationItemResponseObject toJSON = new SpecificationItemResponseObject();
+                    List<SpecificationItemTransferObject> CorSair = new List<SpecificationItemTransferObject>();
+                    toJSON = await httpResponse.Content.ReadAsAsync<SpecificationItemResponseObject>();
+                    CorSair = JsonConvert.DeserializeObject<List<SpecificationItemTransferObject>>(toJSON.JsonResults);
+
+                    
+                    // mark all as toDelete
+                    foreach (SpecificationItemTransferObject m in CorSair)
+                    {
+                        if (m.LanguageID == courses[0].LanguageID)
+                            m.ToBeDeleted = true;
+                    }
+
+
+                    // append to courses
+                    courses.AddRange(CorSair);
                     SpecItemDTO.data = courses;
+
 
 
                     httpResponse = client.PostAsJsonAsync<SpecificationItemTransferObjects>(ajaxURI + "/ProcessSpecificationItems", SpecItemDTO).Result;
