@@ -1,0 +1,7 @@
+use R1103_ContentCentre
+
+select SpecificationItem.SpecificationID, SpecificationItem.Value, SPecificationiTem.SpecificationitemID 
+from AllergenSpecItem
+join SpecificationItem
+on AllergenSpecItem.SpecificationItemID = SpecificationItem.SpecificationItemID
+order by Specificationitem.SpecificationItemID ASC

@@ -82,7 +82,7 @@ namespace Importinator
     public class responseObject
     {
         public DataTable results;
-        public string jsonResults;
+        public string JsonResults;
     }
 }
 
