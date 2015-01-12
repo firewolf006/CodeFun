@@ -25,7 +25,7 @@ namespace Importinator
         public List<CLASSCODE> classCodeList;
         public String mealType;
         public List<MENU> menusList;
-        public int OSCKey = -1;
+        public int OSCid = -1;
 
         public string specMatchKey;
         public string newCode;
@@ -85,40 +85,3 @@ namespace Importinator
         public string JsonResults;
     }
 }
-
-
-//    // allergen fun
-//    public class AllergenTransferObject
-//    {
-//        string accountID = string.Empty;
-//        Guid userID = Guid.Empty;
-
-//        string value = string.Empty;
-//        int allergenID = -1;
-
-
-//        public string AccountID
-//        {
-//            get { return accountID; }
-//            set { accountID = value; }
-//        }
-
-//        public Guid UserID
-//        {
-//            get { return userID; }
-//            set { userID = value; }
-//        }
-
-//        public string Value
-//        {
-//            get { return value; }
-//            set { this.value = value; }
-//        }
-
-//        public int AllergenID
-//        {
-//            get { return allergenID; }
-//            set { allergenID = value; }
-//        }
-//    }
-//}

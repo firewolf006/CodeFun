@@ -1,5 +1,8 @@
 use R1103_ContentCentre
 
-select * from AllergenSpecItem where SpecificationItemID > 126500
-select * from SpecificationItem where SpecificationItemID > 126500
-select SpecificationID, Code, ValidDate, Rotation, Station, Class from Specification where SpecificationID > 11700
+declare @sID int = 126500; --126500
+declare @sIID int = 11739; --11739
+
+select * from AllergenSpecItem where SpecificationItemID > @sID
+select * from SpecificationItem where SpecificationItemID > @sID 
+select SpecificationID, Code, ValidDate, Rotation, Station, Class, StatusID from Specification where SpecificationID > @sIID order by SpecificationID

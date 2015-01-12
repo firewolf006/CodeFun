@@ -17,6 +17,12 @@ using Newtonsoft.Json;
 //using ProjectManagement_API.Models.DTO;
 //using Content_Centre_API.Messaging;
 using Content_Centre_API_CORS.Messaging;
+//using System.Globalization;
+
+
+// C:\Users\LesterS\Downloads\JsonOutput2014-12-10-10-685.txt
+
+// c:\parseMe3-2.txt
 
 
 
@@ -87,8 +93,8 @@ namespace Importinator
                     m.validityBegin + m.pairingGrid + m.cycle + m.newStation +
                     m.newClass;
 
-                if (m.OSCKey > -1)
-                    m.tempSpecID = m.OSCKey;
+                if (m.OSCid > -1)
+                    m.tempSpecID = m.OSCid;
             }
 
             //assign temporary specIDs
@@ -421,11 +427,31 @@ namespace Importinator
             {
 
                 String str = "";
-                int start = 7, howMany = 3; //9
+                DateTime startTime = new DateTime();
+                TimeSpan diffTime = new TimeSpan();
+                startTime = DateTime.Now;
+                int start = 0, howMany = 10; //9
+                if (howMany + start > test.menuDataList.Count)
+                    howMany = test.menuDataList.Count - start ;
                 for (int xList = start; xList < howMany + start; xList++)
                 {
                     DataList temp = new DataList();
                     SpecTransferObject newSpec = new SpecTransferObject();
+
+                    DateTime nowTime = new DateTime();
+
+                    nowTime = DateTime.Now;
+                    diffTime = nowTime - startTime;
+
+                    String strTemp = "";
+                    nowTime  = startTime + TimeSpan.FromMilliseconds((diffTime.TotalMilliseconds / (xList + 1)) * howMany);
+
+
+                    strTemp += "Start:" + startTime.ToShortTimeString() +
+                         " " + (xList + 1) + "\\" + howMany + "(" + String.Format("{0:p}",((xList + 1.0) / howMany)) + ") done at " +
+                         nowTime.ToShortTimeString();
+                    Console.Clear();
+                    Console.WriteLine(strTemp);
 
                     bool IDError = false;
 
@@ -477,7 +503,11 @@ namespace Importinator
 
                     // Get Rotation ID?
                     newSpec.RotationID = getRotationGrillID(Rotations, temp.pairingGrid);
-                    if (newSpec.RotationID == -1) //new Rotation?
+                    if (temp.pairingGrid == "X")
+                    {
+                        newSpec.RotationID = -1;
+                    }
+                    else if (newSpec.RotationID == -1) //new Rotation?
                     {
                         IDError = true;
                         error = "-> Rotation \"" + temp.pairingGrid + "\" not found";
@@ -791,6 +821,10 @@ namespace Importinator
                                         //xID = x + 2;
                                         courseRei.SpecificationItemID = -(courses.Count + 1);
                                         courseRei.LanguageID = getLanguageID(Languages, temp.language);
+
+                                        // if i used Linq...
+                                        //int x2222 = Languages.Where(lester => lester.LanguageCode == temp.language).Select(y => y.LanguageID).Single();
+
                                         courseRei.SpecificationID = newSpec.SpecID;
                                         courseRei.ParentID = courses[courses.Count - 1].SpecificationItemID;
                                         courseRei.Value = m.content;
