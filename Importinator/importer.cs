@@ -137,9 +137,19 @@ namespace Importinator
             Console.WriteLine("Getting token");
 
             HttpClient client = new HttpClient();
-            string OscToken = "Bearer " + await GetAuthToken();
-            OscToken = OscToken.Replace("#access_token=", "");
+                string OscToken = string.Empty;
+            // Uncomment this to use a fresh token
+            //OscToken = "Bearer " + await GetAuthToken();
+            //OscToken = OscToken.Replace("#access_token=", "");
+            
+            // FrankAF -----
+            //OscToken = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL29zY2lkLm9zYy1pdC5jb20vdHJ1c3QvSWRlbnRpdHlTZXJ2ZXIiLCJhdWQiOiJ1cm46Q29udGVudENlbnRyZVdlYiIsIm5iZiI6MTQzOTQ5NDc5NCwiZXhwIjoxNDQwNzA0Mzk0LCJuYW1laWQiOiJmcmFua0FGIiwidW5pcXVlX25hbWUiOiJmcmFua0FGIiwiYXV0aG1ldGhvZCI6Imh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9hdXRoZW50aWNhdGlvbm1ldGhvZC9wYXNzd29yZCIsImF1dGhfdGltZSI6IjIwMTUtMDgtMTNUMTk6Mzk6NTMuNzA4WiIsImVtYWlsIjoiZnJhbmtBRkBhaXJsaW5lbWVudXMuY29tIiwicm9sZSI6WyJBaXIgRnJhbmNlIC0gRm9vZCBEZXNpZ25lciIsIkFpciBGcmFuY2UgLSBJbmZvcm1hdGlvbiBUZWNobm9sb2d5Il0sImh0dHA6Ly9pZGVudGl0eXNlcnZlci50aGlua3RlY3R1cmUuY29tL2NsYWltcy9wcm9maWxlY2xhaW1zL2NvbXBhbnlpZCI6IjEifQ.VPR4WbFPW7t5YFRcAZ-TbmPf9HtvZfr_wNFVwKaNoTM";
+            //FrankOSC -----
+            OscToken = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL29zY2lkLm9zYy1pdC5jb20vdHJ1c3QvSWRlbnRpdHlTZXJ2ZXIiLCJhdWQiOiJ1cm46Q29udGVudENlbnRyZVdlYiIsIm5iZiI6MTQzOTQ5NTAxOCwiZXhwIjoxNDQwNzA0NjE4LCJuYW1laWQiOiJmcmFua09TQyIsInVuaXF1ZV9uYW1lIjoiZnJhbmtPU0MiLCJhdXRobWV0aG9kIjoiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2F1dGhlbnRpY2F0aW9ubWV0aG9kL3Bhc3N3b3JkIiwiYXV0aF90aW1lIjoiMjAxNS0wOC0xM1QxOTo0MzozOC43NDZaIiwiZW1haWwiOiJmcmFua09TQ0BvbmV3b3JsZG9uZXN0b3AuY29tIiwicm9sZSI6WyJPU0MgLSBBaXIgRnJhbmNlIFRlYW0gTWVtYmVyIiwiT1NDIC0gQnJpdGlzaCBBaXJ3YXlzIFRlYW0gTWVtYmVyIiwiT1NDIC0gSVQgQWRtaW4iLCJPU0MgLSBVbml0ZWQgVGVhbSBNZW1iZXIiLCJPU0MgLSBWaXJnaW4gQXRsYW50aWMgVGVhbSBNZW1iZXIiXSwiaHR0cDovL2lkZW50aXR5c2VydmVyLnRoaW5rdGVjdHVyZS5jb20vY2xhaW1zL3Byb2ZpbGVjbGFpbXMvY29tcGFueWlkIjoiNSJ9.xmwOfF7yn_4S6oXL2wF5m9A246czE2SIN0y4xIF6CRk";
             client.DefaultRequestHeaders.Add("Authorization", OscToken);
+            client.DefaultRequestHeaders.Referrer = new System.Uri("http://ifonlythiswasarealsite.com/JSONimporter.txt");
+            //client.DefaultRequestHeaders.Add("
+
 
             Console.WriteLine("token Retrieved");
 
@@ -430,13 +440,18 @@ namespace Importinator
                 DateTime startTime = new DateTime();
                 TimeSpan diffTime = new TimeSpan();
                 startTime = DateTime.Now;
-                int start = 0, howMany = 10; //9
+                int start = 0, howMany = 100; //9
                 if (howMany + start > test.menuDataList.Count)
                     howMany = test.menuDataList.Count - start ;
                 for (int xList = start; xList < howMany + start; xList++)
                 {
                     DataList temp = new DataList();
                     SpecTransferObject newSpec = new SpecTransferObject();
+                    Content_Centre_API_CORS.Templates.AccountContext GlobalContext = new Content_Centre_API_CORS.Templates.AccountContext();
+                    GlobalContext.AccountID = 1;
+                    GlobalContext.Role = "OSC - Air France Team Member";
+
+                    newSpec.Context = GlobalContext;
 
                     DateTime nowTime = new DateTime();
 
@@ -531,6 +546,7 @@ namespace Importinator
                         {
                             SpecTransferObject checkSpec = new SpecTransferObject();
                             checkSpec.SpecID = temp.tempSpecID;
+                            checkSpec.Context = GlobalContext;
 
 
                             httpResponse = client.PostAsJsonAsync<SpecTransferObject>(ajaxURI + "/getSpecByID", checkSpec).Result;
@@ -880,6 +896,8 @@ namespace Importinator
                                 //SpecItemDTO
 
                                 tempSpecGet.SpecificationID = newSpec.SpecID;
+                                SpecItemDTO.Context = GlobalContext;
+                                tempSpecGet.Context = GlobalContext;
                                 //SpecItemDTO.data[0].SpecificationID = newSpec.SpecID;
 
                                 //DataTable tempResponse = new DataTable();
@@ -986,6 +1004,9 @@ namespace Importinator
                 Console.ReadLine();
             }
         }
+
+
+
         /// <summary>
         /// a general function to for getting IDs for objects with varying TransferObjects
         /// </summary>
@@ -1007,6 +1028,10 @@ namespace Importinator
             // -----------Get meal types
             T1 reQ1 = new T1();
             List<T1> Types = new List<T1>();
+
+            reQ1.Context = new Content_Centre_API_CORS.Templates.AccountContext();
+            reQ1.Context.AccountID = 1;
+            reQ1.Context.Role = "OSC - Air France Team Member";
 
             HttpResponseMessage httpResponse = client.PostAsJsonAsync<T1>(ajaxURI + "/" + method, reQ1).Result;
             Console.WriteLine("\n|--------------------|");
@@ -1171,7 +1196,7 @@ namespace Importinator
 
                 string postUrl = "https://oscid.osc-it.com/account/signin";
 
-                StringContent postContent = new StringContent("__RequestVerificationToken=" + tokenValue + "&UserName=frankAF&Password=asdqwe123&EnableSSO=false");
+                StringContent postContent = new StringContent("__RequestVerificationToken=" + tokenValue + "&UserName=frankOSC&Password=asdqwe123&EnableSSO=false");
                 postContent.Headers.ContentType.MediaType = "application/x-www-form-urlencoded";
                 HttpResponseMessage newResponse = client.PostAsync(new Uri(postUrl), postContent).Result;
 
